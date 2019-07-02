@@ -3,9 +3,14 @@ package datastore
 import (
 	"context"
 	"sync"
+	"time"
+
+	"bitbucket.org/libertywireless/wonderwall-auth/wlog"
 
 	"bitbucket.org/libertywireless/wonderwall-auth/config"
 	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"github.com/mongodb/mongo-go-driver/x/bsonx"
 	"github.com/sirupsen/logrus"
 )
 
@@ -64,4 +69,26 @@ func connectToMongo(generalConfig config.GeneralConfig, logger *logrus.Logger) (
 	logger.Info(CONNECTED, generalConfig.DatabaseName)
 
 	return DB, session
+}
+
+func PopulateIndex(store *MongoDatastore, collection string) {
+	c := store.DB.Collection(collection)
+	opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
+	index := yieldIndexModel()
+	_, err := c.Indexes().CreateOne(context.Background(), index, opts)
+	if err == nil {
+		wlog.Logger.Println("Successfully create the index")
+	} else {
+		wlog.Logger.Errorln("Could not create index")
+	}
+}
+
+func yieldIndexModel() mongo.IndexModel {
+	keys := bsonx.Doc{{Key: "email", Value: bsonx.Int32(int32(1))}}
+	index := mongo.IndexModel{}
+	index.Keys = keys
+	t := true
+	index.Options = &options.IndexOptions{
+		Unique: &t}
+	return index
 }

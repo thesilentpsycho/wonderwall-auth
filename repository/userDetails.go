@@ -34,6 +34,12 @@ func (r *userRepo) UpdateSingle(userid string, field string, newValue interface{
 	//To do
 }
 
-func NewUserRepository() *userRepo {
-	return &userRepo{}
+func NewUserRepository(store *datastore.MongoDatastore, collection string) *userRepo {
+	if collection == "" {
+		//Ye sb sahi nahi ho rha hai
+		return nil
+	}
+	return &userRepo{
+		Collection: store.DB.Collection(collection),
+		Datastore:  store}
 }

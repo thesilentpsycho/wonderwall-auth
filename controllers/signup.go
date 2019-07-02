@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/mongodb/mongo-go-driver/bson/primitive"
+
 	"bitbucket.org/libertywireless/wonderwall-auth/repository"
 
 	dbmodels "bitbucket.org/libertywireless/wonderwall-auth/models/db"
@@ -41,13 +43,16 @@ func (c *signUpController) SignUp(w http.ResponseWriter, r *http.Request) {
 		EmailID:  form.EmailID,
 		Password: form.Password}
 
-	err = c.authRepo.CreateLogin(authData)
+	userID, err := c.authRepo.CreateLogin(authData)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(err.Error())
 	}
 
+	userIDHex, _ := primitive.ObjectIDFromHex(userID)
+
 	userDetails := &dbmodels.UserDetails{
+		RawId:     userIDHex,
 		EmailID:   form.EmailID,
 		FirstName: form.FirstName,
 		LastName:  form.LastName}

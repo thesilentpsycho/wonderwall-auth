@@ -20,6 +20,7 @@ func main() {
 	readFlags()
 	initConfig()
 	wlog.InitLogger()
+
 	fmt.Println("Server listening on port :", serverPort)
 	http.ListenAndServe(":"+strconv.Itoa(int(serverPort)), GetHandler())
 }
