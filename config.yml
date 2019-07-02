@@ -1,0 +1,17 @@
+env: dev
+
+service_name: wwauth
+default_server_port: 8080
+default_config_filepath: config.yml
+
+#db
+database_host: mongodb://localhost:27017
+database_port: 27017
+database_name: wonderwall
+
+#logging
+log_level: info
+auth_log_file: logs/auth.log
+
+#request
+default_timeout: 180 #seconds
