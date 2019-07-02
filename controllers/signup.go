@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"bitbucket.org/libertywireless/wonderwall-auth/models"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -22,14 +21,17 @@ func (c *authController) SignUp(w http.ResponseWriter, r *http.Request) {
 	var form models.SignUpForm
 	err := decoder.Decode(&form)
 	if err != nil {
-		logrus.Errorln(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	v := validator.New()
 	err = v.Struct(form)
-	json.NewEncoder(w).Encode(err.(validator.ValidationErrors))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(err.Error())
+		return
+	}
 
 }
 
