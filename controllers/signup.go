@@ -4,19 +4,23 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"bitbucket.org/libertywireless/wonderwall-auth/models"
+	"bitbucket.org/libertywireless/wonderwall-auth/repository"
+
+	dbmodels "bitbucket.org/libertywireless/wonderwall-auth/models/db"
+	models "bitbucket.org/libertywireless/wonderwall-auth/models/external"
 	"gopkg.in/go-playground/validator.v9"
 )
 
-type AuthController interface {
+type SignUpController interface {
 	SignUp(w http.ResponseWriter, r *http.Request)
-	SignIn(w http.ResponseWriter, r *http.Request)
 }
 
-type authController struct {
+type signUpController struct {
+	detailsRepo repository.UserEngine
+	authRepo    repository.AuthenticationEngine
 }
 
-func (c *authController) SignUp(w http.ResponseWriter, r *http.Request) {
+func (c *signUpController) SignUp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var form models.SignUpForm
 	err := decoder.Decode(&form)
@@ -33,12 +37,26 @@ func (c *authController) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	authData := &dbmodels.AuthInfo{
+		EmailID:  form.EmailID,
+		Password: form.Password}
+
+	err = c.authRepo.CreateLogin(authData)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(err.Error())
+	}
+
+	userDetails := &dbmodels.UserDetails{
+		EmailID:   form.EmailID,
+		FirstName: form.FirstName,
+		LastName:  form.LastName}
+
+	err = c.detailsRepo.Create(userDetails)
 }
 
-func (c *authController) SignIn(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Yo Bhuwania"))
-}
-
-func NewAuthController() AuthController {
-	return &authController{}
+func NewSignUpController(detailsRepo repository.UserEngine, authRepo repository.AuthenticationEngine) *signUpController {
+	return &signUpController{
+		authRepo:    authRepo,
+		detailsRepo: detailsRepo}
 }

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"bitbucket.org/libertywireless/wonderwall-auth/wlog"
+
 	"bitbucket.org/libertywireless/wonderwall-auth/config"
 )
 
@@ -17,7 +19,7 @@ var serverPort uint
 func main() {
 	readFlags()
 	initConfig()
-
+	wlog.InitLogger()
 	fmt.Println("Server listening on port :", serverPort)
 	http.ListenAndServe(":"+strconv.Itoa(int(serverPort)), GetHandler())
 }

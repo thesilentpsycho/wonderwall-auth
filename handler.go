@@ -7,7 +7,6 @@ import (
 
 func GetHandler() *chi.Mux {
 	router := GetRouter()
-
 	authController := controllers.NewAuthController()
 	router.Post("/signup", authController.SignUp)
 	router.Post("/signin", authController.SignIn)
