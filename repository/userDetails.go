@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	datastore "bitbucket.org/libertywireless/wonderwall-auth/infra"
 	models "bitbucket.org/libertywireless/wonderwall-auth/models/db"
 	"github.com/mongodb/mongo-go-driver/mongo"
@@ -20,8 +22,11 @@ type userRepo struct {
 }
 
 func (r *userRepo) Create(details *models.UserDetails) error {
+	_, err := r.Collection.InsertOne(context.Background(), details)
+	if err != nil {
+		return err
+	}
 	return nil
-	//To do
 }
 
 func (r *userRepo) UpdateMultiple(userid string, fieldValues M) error {

@@ -77,7 +77,7 @@ func PopulateIndex(store *MongoDatastore, collection string) {
 	index := yieldIndexModel()
 	_, err := c.Indexes().CreateOne(context.Background(), index, opts)
 	if err == nil {
-		wlog.Logger.Println("Successfully create the index")
+		wlog.Logger.Println("Successfully created the index")
 	} else {
 		wlog.Logger.Errorln("Could not create index")
 	}
